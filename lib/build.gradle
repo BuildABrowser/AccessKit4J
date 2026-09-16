@@ -24,6 +24,10 @@ java {
     }
 }
 
+test {
+    failOnNoDiscoveredTests = false
+}
+
 task runSample(type: JavaExec) {
     group = "Execution"
     description = "Test A11Y integration via sample program"

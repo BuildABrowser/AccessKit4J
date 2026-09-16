@@ -10,11 +10,14 @@ import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.buildabrowser.ak4j.AK4JHandle;
+import net.buildabrowser.ak4j.AKAction;
+import net.buildabrowser.ak4j.AKActionRequest;
 import net.buildabrowser.ak4j.AKAdapter;
 import net.buildabrowser.ak4j.AKCallbacks;
 
@@ -94,8 +97,10 @@ public class UnixAKAdapter implements AKAdapter {
   ) throws Throwable {
     MemorySegment activationHandlerPtr = updateFunctionToFunctionPointer(
       _ -> callbacks.onActivation(ak4jHandle));
-    MemorySegment actionHandlerPtr = userDataConsumerToFunctionPointer(
-      _ -> callbacks.onAction(ak4jHandle));
+    MemorySegment actionHandlerPtr = actionRequestConsumerToFunctionPointer(
+      (actionRequest, _) -> { callbacks.onAction(
+        ak4jHandle,
+        mapActionRequest((MemorySegment) actionRequest));});
     MemorySegment deactivationHandlerPtr = userDataConsumerToFunctionPointer(
       _ -> callbacks.onDeactivation(ak4jHandle));
 
@@ -108,8 +113,6 @@ public class UnixAKAdapter implements AKAdapter {
       deactivationHandlerPtr, // deactivation_handler
       MemorySegment.NULL  // deactivation_handler_userdata
     );
-
-    setFocus(true);
   }
 
   private MethodHandle getNewMethodHandle() {
@@ -202,6 +205,44 @@ public class UnixAKAdapter implements AKAdapter {
     
     FunctionDescriptor descriptor = FunctionDescriptor.ofVoid(ValueLayout.ADDRESS);
     return linker.upcallStub(methodHandle, descriptor, arena);
+  }
+
+  private MemorySegment actionRequestConsumerToFunctionPointer(
+    BiConsumer<Object, Object> consumer
+  ) throws NoSuchMethodException, IllegalAccessException {
+    MethodType methodType = MethodType.methodType(void.class, Object.class, Object.class);
+    MethodHandle methodHandle = MethodHandles.lookup()
+      .findVirtual(BiConsumer.class, "accept", methodType)
+      .bindTo(consumer)
+      .asType(MethodType.methodType(void.class, MemorySegment.class, MemorySegment.class));
+    
+    FunctionDescriptor descriptor = FunctionDescriptor.ofVoid(ValueLayout.ADDRESS, ValueLayout.ADDRESS);
+    return linker.upcallStub(methodHandle, descriptor, arena);
+  }
+
+  private AKActionRequest mapActionRequest(MemorySegment actionRequest) {
+    actionRequest = actionRequest.reinterpret(AKValueLayouts.ACTION_REQUEST_LAYOUT.byteSize());
+    byte actionByte = (byte) AKValueLayouts.ACTION_REQUEST_ACTION.get(actionRequest, 0L);
+    int actionOrdinal = Byte.toUnsignedInt(actionByte);
+    AKAction action = AKAction.fromInt(actionOrdinal);
+    long nodeId = (long) AKValueLayouts.ACTION_REQUEST_TARGET_NODE.get(actionRequest, 0L);
+    MemorySegment dataPtr = actionRequest.asSlice(
+      AKValueLayouts.ACTION_REQUEST_DATA, AKValueLayouts.OPT_ACTION_DATA_LAYOUT);
+    MemorySegment valuePtr = dataPtr.asSlice(
+      AKValueLayouts.OPT_ACTION_DATA_VALUE, AKValueLayouts.ACTION_DATA_LAYOUT);
+    MemorySegment unionPtr = valuePtr.asSlice(
+      AKValueLayouts.ACTION_DATA_UNION, AKValueLayouts.ACTION_DATA_UNION_LAYOUT);
+
+    return switch (action) {
+      case SET_TEXT_SELECTION -> {
+        MemorySegment textSelectionPtr = unionPtr.asSlice(
+          AKValueLayouts.ACTION_DATA_TEXT_SELECTION,
+          AKValueLayouts.TEXT_SELECTION_LAYOUT);
+        yield new AKActionRequest(action, nodeId,
+          AKValueUtil.decodeTextSelection(textSelectionPtr));
+      }
+      default -> new AKActionRequest(action, nodeId, null);
+    };
   }
 
   @Override

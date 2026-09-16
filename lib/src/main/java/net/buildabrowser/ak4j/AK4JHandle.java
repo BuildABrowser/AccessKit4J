@@ -9,7 +9,15 @@ public interface AK4JHandle extends AutoCloseable {
 
   AKNodeCalls nodes();
 
+  AKPropertyCalls properties();
+
   MemorySegment createTree(long nodeId, Arena scope);
+
+  void setTreeToolkitName(
+    MemorySegment tree,
+    String name,
+    Arena scope
+  );
 
   MemorySegment createTreeUpdate(
     MemorySegment tree,

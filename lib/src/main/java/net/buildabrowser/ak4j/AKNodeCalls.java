@@ -13,6 +13,14 @@ public interface AKNodeCalls {
 
   void setValue(MemorySegment node, String value, Arena scope);
 
+  void setHTMLTag(MemorySegment node, String value, Arena scope);
+
   void setBounds(MemorySegment node, float x, float y, float w, float h);
+
+  void addAction(MemorySegment node, AKAction action);
+
+  void setCharacterLengths(MemorySegment node, byte[] lengths, int size, Arena scope);
+
+  void setTextSelection(MemorySegment node, AKTextSelection textSelection, Arena scope);
 
 }

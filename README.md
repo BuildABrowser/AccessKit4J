@@ -46,6 +46,9 @@ accesskit_android = { path = "../accesskit/adapters/android" }
 accesskit_ios = { path = "../accesskit/adapters/ios" }
 ```
 
+If Rust gives warnings about patches not being used, change the versions in accesskit-c's Cargo.toml to the ones
+shown in the log.
+
 Finally, run
 ```bash
 cargo build --release
