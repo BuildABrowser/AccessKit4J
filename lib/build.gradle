@@ -25,6 +25,13 @@ java {
     }
 }
 
+def isLinux = System.getProperty('os.name').toLowerCase().contains('linux')
+tasks.named('processResources') {
+    if (!isLinux) {
+        exclude 'natives/libaccesskit_x86_64.so'
+    }
+}
+
 version = '0.1.0'
 publishing {
     publications {
