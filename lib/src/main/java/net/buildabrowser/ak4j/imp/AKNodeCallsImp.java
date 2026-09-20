@@ -23,6 +23,7 @@ public class AKNodeCallsImp implements AKNodeCalls {
   private final MethodHandle pushChildHandle;
   private final MethodHandle setValueHandle;
   private final MethodHandle setHTMLTagHandle;
+  private final MethodHandle setURLHandle;
   private final MethodHandle addActionHandle;
   private final MethodHandle setCharacterLengths;
   private final MethodHandle setTextSelection;
@@ -35,6 +36,7 @@ public class AKNodeCallsImp implements AKNodeCalls {
     this.pushChildHandle = getPushChildMethodHandle();
     this.setValueHandle = getSetValueMethodHandle();
     this.setHTMLTagHandle = getSetHTMLTagMethodHandle();
+    this.setURLHandle = getSetURLMethodHandle();
     this.addActionHandle = getAddActionMethodHandle();
     this.setCharacterLengths = getSetCharacterLengthsHandle();
     this.setTextSelection = getSetTextSelectionHandle();
@@ -69,6 +71,16 @@ public class AKNodeCallsImp implements AKNodeCalls {
     MemorySegment valuePtr = scope.allocateFrom(value); // TODO: Handle null character
     CommonUtil.rethrowV(() -> {
       setHTMLTagHandle.invokeExact(
+        node, 
+        valuePtr,
+        value.getBytes(StandardCharsets.UTF_8).length);});
+  }
+
+  @Override
+  public void setHref(MemorySegment node, String value, Arena scope) {
+    MemorySegment valuePtr = scope.allocateFrom(value); // TODO: Handle null character
+    CommonUtil.rethrowV(() -> {
+      setURLHandle.invokeExact(
         node, 
         valuePtr,
         value.getBytes(StandardCharsets.UTF_8).length);});
@@ -141,6 +153,18 @@ public class AKNodeCallsImp implements AKNodeCalls {
   private MethodHandle getSetHTMLTagMethodHandle() {
     SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
     MemorySegment methodAddr = symbolLookup.findOrThrow("accesskit_node_set_html_tag_with_length");
+    FunctionDescriptor methodDesc = FunctionDescriptor.ofVoid(
+      ValueLayout.ADDRESS, // node
+      ValueLayout.ADDRESS, // value
+      ValueLayout.JAVA_INT // length
+    );
+
+    return linker.downcallHandle(methodAddr, methodDesc);
+  }
+
+  private MethodHandle getSetURLMethodHandle() {
+    SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
+    MemorySegment methodAddr = symbolLookup.findOrThrow("accesskit_node_set_url_with_length");
     FunctionDescriptor methodDesc = FunctionDescriptor.ofVoid(
       ValueLayout.ADDRESS, // node
       ValueLayout.ADDRESS, // value

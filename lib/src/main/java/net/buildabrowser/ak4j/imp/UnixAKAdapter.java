@@ -51,8 +51,6 @@ public class UnixAKAdapter implements AKAdapter {
       this.updateHandle = getUpdateMethodHandle();
       this.debugHandle = getDebugMethodHandle();
       this.setFocusHandle = getSetFocusMethodHandle();
-
-      // setFocus(true);
     } catch (RuntimeException e) {
       throw e;
     } catch (Throwable e) {
@@ -133,12 +131,12 @@ public class UnixAKAdapter implements AKAdapter {
 
   private MethodHandle getFreeMethodHandle() {
     SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
-    MemorySegment newMethodAddr = symbolLookup.findOrThrow("accesskit_unix_adapter_free");
-    FunctionDescriptor newMethodDesc = FunctionDescriptor.ofVoid(
+    MemorySegment freeMethodAddr = symbolLookup.findOrThrow("accesskit_unix_adapter_free");
+    FunctionDescriptor freeMethodDesc = FunctionDescriptor.ofVoid(
       ValueLayout.ADDRESS // adapter
     );
 
-    return linker.downcallHandle(newMethodAddr, newMethodDesc);
+    return linker.downcallHandle(freeMethodAddr, freeMethodDesc);
   }
 
   private MethodHandle getUpdateMethodHandle() {

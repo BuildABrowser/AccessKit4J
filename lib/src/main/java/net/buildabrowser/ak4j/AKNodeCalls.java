@@ -15,6 +15,8 @@ public interface AKNodeCalls {
 
   void setHTMLTag(MemorySegment node, String value, Arena scope);
 
+  void setHref(MemorySegment node, String value, Arena scope);
+
   void setBounds(MemorySegment node, float x, float y, float w, float h);
 
   void addAction(MemorySegment node, AKAction action);
