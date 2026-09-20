@@ -1,4 +1,4 @@
-# AK4J
+# AccessKit4J
 
 This repository provides FFM-based bindings to AccessKit for Java.
 
@@ -7,7 +7,7 @@ Java's own built-in options at time of writing.
 
 ## Native Libraries
 
-AK4J utilizes AccessKit as a native library!
+AccessKit4J utilizes AccessKit as a native library!
 
 Natives (built from BAB's fork) are located in `lib/src/main/resources/natives`. They come pre-bundled so that JitPack can build the library properly.
 
@@ -17,7 +17,7 @@ If you do not want to use the bundled natives, you will need to delete them and 
 
 You can download a zip file containing natives at https://github.com/AccessKit/accesskit-c/releases/tag/0.22.3.
 
-Unzip the file, and ensure the contained native names match those used by AK4J (e.g. `libaccesskit_x86_64.so` for Linux).
+Unzip the file, and ensure the contained native names match those used by AccessKit4J (e.g. `libaccesskit_x86_64.so` for Linux).
 
 Copy them to `lib/src/main/resources/natives`.
 
