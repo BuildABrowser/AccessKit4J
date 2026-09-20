@@ -36,7 +36,9 @@ tasks.withType(Jar).configureEach {
 }
 
 jar {
-    exclude 'natives/**'
+    if (gradle.startParameter.taskNames.any { it.contains('publish') }) {
+        exclude 'natives/**'
+    }
 }
 
 tasks.register('linuxNativesJar', Jar) {

@@ -39,7 +39,7 @@ lto = true
 opt-level = "z"
 codegen-units = 1
 panic = "abort"
-debug = true
+debug = false
 
 [patch.crates-io]
 accesskit = { path = "../accesskit/accesskit" }

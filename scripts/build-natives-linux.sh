@@ -27,7 +27,8 @@ echo "=== Preparing sibling repositories ==="
 # 1. Clone BAB fork into ../accesskit if missing
 if [ ! -d "$ACCESSKIT_DIR" ]; then
     echo "Cloning accesskit-bab-fork into $ACCESSKIT_DIR..."
-    git clone --depth 1 https://github.com/BuildABrowser/accesskit-bab-fork "$ACCESSKIT_DIR"
+    git clone https://github.com/BuildABrowser/accesskit-bab-fork "$ACCESSKIT_DIR"
+    git -C "$ACCESSKIT_DIR" checkout f374eea0b5b2ef575a90067a2cc5a1fe81be6f3c
 else
     echo "Found existing $ACCESSKIT_DIR"
 fi
@@ -35,7 +36,8 @@ fi
 # 2. Clone accesskit-c into ../accesskit-c if missing
 if [ ! -d "$ACCESSKIT_C_DIR" ]; then
     echo "Cloning accesskit-c into $ACCESSKIT_C_DIR..."
-    git clone --depth 1 https://github.com/AccessKit/accesskit-c "$ACCESSKIT_C_DIR"
+    git clone https://github.com/AccessKit/accesskit-c "$ACCESSKIT_C_DIR"
+    git -C "$ACCESSKIT_C_DIR" checkout 30cde30d3247896c32c03c0190e54bed8db527a6
 else
     echo "Found existing $ACCESSKIT_C_DIR"
 fi
