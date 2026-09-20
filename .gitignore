@@ -223,3 +223,6 @@ gradle-app.setting
 /.idea/
 .classpath
 /.vscode/
+
+# TODO: Make a generated source dir
+lib/src/main/resources/natives

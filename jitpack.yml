@@ -1,3 +1,4 @@
 before_install:
   - sdk install java 24.0.2-zulu
   - sdk use java 24.0.2-zulu
+  - ./scripts/build-natives-linux.sh
